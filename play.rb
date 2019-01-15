@@ -17,15 +17,12 @@ game.choose_strategy(strategy)
 
 while true
 
-  game.print_board
+  game.ai_play
   answer = cli.ask "your turn, input chess position(like  1 1): "
 
   puts answer
   x, y = answer.split(" ")
   game.player_fill x.to_i - 1, y.to_i - 1
 
-  game.ai_play
-
-  break
 
 end
