@@ -18,11 +18,11 @@ class Game
   end
 
   def choose_strategy(strategy)
-    @strategy = strategy.to_s
+    self.strategy = strategy.to_s
   end
 
   def player_fill(x, y)
-    @chessboard[x][y] = WHITE
+    self.chessboard[x][y] = WHITE
     self.print_board
   end
 
@@ -38,13 +38,13 @@ class Game
 
   def random_walk
     puts "random walk"
-    empty_pos_list = [*0..(@board_x * @board_y - 1)].select do |num|
+    empty_pos_list = [*0..(self.board_x * self.board_y - 1)].select do |num|
       x = num / board_y
       y = num % board_y
-      @chessboard[x][y] = EMPTY
+      self.chessboard[x][y] == EMPTY
     end
     pos = empty_pos_list.sample
-    @chessboard[pos / board_y][pos % board_y] = BLACK
+    self.chessboard[pos / board_y][pos % board_y] = BLACK
   end
 
   def minimax
@@ -53,7 +53,7 @@ class Game
   end
 
   def print_board
-    @chessboard.each do |record|
+    self.chessboard.each do |record|
       puts record.join(" ")
     end
   end
