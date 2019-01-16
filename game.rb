@@ -56,12 +56,16 @@ class Game
     end
 
     def evaluate_score(chessboard, win_count)
+      self.evaluate_color_score(chessboard, BLACK, win_count) - self.evaluate_color_score(chessboard, WHITE, win_count)
+    end
 
-      if Game.have_winner? chessboard, BLACK, win_count
+    def evaluate_color_score(chessboard, color, win_count)
+
+      if Game.have_winner? chessboard, color, win_count
         return 10000
       end
 
-      if Game.have_winner? chessboard, BLACK, win_count - 1
+      if Game.have_winner? chessboard, color, win_count - 1
         return 1000
       end
 
