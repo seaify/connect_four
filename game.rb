@@ -9,13 +9,13 @@ class Game
 
   attr_accessor :board_x, :board_y, :win_count, :chessboard, :strategy, :ai_depth
 
-  def initialize(board_x, board_y, win_count)
+  def initialize(board_x, board_y, win_count, api_depth)
     @board_x = board_x
     @board_y = board_y
     @win_count = win_count
     @chessboard = Array.new(board_x) {Array.new(board_y, EMPTY)}
     @strategy = nil # by default
-    @ai_depth = 4
+    @ai_depth = api_depth
     puts "at chessboard, #{EMPTY} means empty, #{BLACK} means ai player, #{WHITE} means human player"
   end
 
@@ -69,9 +69,28 @@ class Game
 
       score = 0
 
-      for num in (1..win_count)
-        score += Game.consecutive_count(chessboard, color, num) * num * win_count
+      #special situation, first point, always choose center
+      if chessboard.flatten.select {|x| x == color }.count == 1 && chessboard.flatten.uniq.count == 2
+
+        pos = chessboard.flatten.find_index {|x| x == color }
+
+        board_x = chessboard.count
+        board_y = chessboard[0].count
+        x = pos / board_y
+        y = pos % board_y
+        avg = (board_y + board_x) / 2
+        score = (x + y - avg).abs + (x - y).abs
+        puts "score is #{score}"
+        return -score;
+      else
+
+        for num in (1..win_count)
+          score += Game.consecutive_count(chessboard, color, num) * num * win_count
+        end
+
+
       end
+
 
       return score
     end
