@@ -20,7 +20,7 @@ game.set_chessboard(
 [0, 2, 1],
 [2, 0, 0]])
 =end
-
+=begin
 game.set_chessboard(
       [[0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0],
@@ -29,6 +29,7 @@ game.set_chessboard(
 [0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0]]
 )
+=end
 
 while true
 

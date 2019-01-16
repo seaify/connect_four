@@ -16,7 +16,7 @@ class Game
     @chessboard = Array.new(board_x) {Array.new(board_y, EMPTY)}
     @strategy = nil # by default
     @ai_depth = ai_depth
-    @just_start = false
+    @just_start = true
     puts "at chessboard, #{EMPTY} means empty, #{BLACK} means ai player, #{WHITE} means human player"
   end
 
