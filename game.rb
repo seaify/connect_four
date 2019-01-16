@@ -111,32 +111,6 @@ class Game
   end
 
   def minimax_walk
-=begin
-    empty_pos_list = [*0..(self.board_x * self.board_y - 1)].select do |num|
-      x = num / board_y
-      y = num % board_y
-      self.chessboard[x][y] == EMPTY
-    end
-    final_score = INF
-    final_pos = -1
-    empty_pos_list.each do |pos|
-
-      x = pos / board_y
-      y = pos % board_y
-
-      self.chessboard[x][y] = BLACK
-
-      score = self.minimax(self.chessboard, self.ai_depth, WHITE)
-      if score < final_score
-        final_score = score
-        final_pos = pos
-        puts "pos #{x} #{y}, score is #{score}"
-      end
-
-      self.chessboard[x][y] = EMPTY
-    end
-=end
-    #self.chessboard[final_pos / board_y][final_pos % board_y] = BLACK
     score, steps = self.minimax self.chessboard, self.ai_depth, BLACK, -INF, INF, []
     puts "score is #{score}, steps is #{steps}"
     self.chessboard[steps[0][0]][steps[0][1]] = BLACK
