@@ -53,6 +53,7 @@ class Game
             right_down_elements = [*0..(win_count - 1)].map {|offset| chessboard[i + offset][j + offset]}
             total += 1 if right_down_elements.uniq == [color]
           end
+
         end
       end
 
@@ -84,7 +85,7 @@ class Game
       else
 
         for num in (1..win_count)
-          score += Game.consecutive_count(chessboard, color, num) * num * win_count
+          score += Game.consecutive_count(chessboard, color, num) * (2 ** num) * (100 ** color)
         end
 
 
@@ -181,12 +182,12 @@ class Game
         i, j = pos
         if board[i][j] == EMPTY
             board[i][j] = BLACK
-            #puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
             score, next_steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps)
             if score > value
               value = score
               final_steps = [[i, j]] + next_steps
             end
+            puts "current i = #{i}, j = #{j}, board = #{board}, score=#{score}" if depth == self.ai_depth
             board[i][j] = EMPTY
             alpha = [alpha, score].max
             if alpha >= beta
