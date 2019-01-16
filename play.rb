@@ -1,7 +1,7 @@
 require './game'
 require 'highline'
 
-game = Game.new(6,6, 3)
+game = Game.new(6,6, 4)
 
 cli = HighLine.new
 strategy = cli.choose do |menu|

@@ -15,44 +15,47 @@ class Game
     @win_count = win_count
     @chessboard = Array.new(board_x) {Array.new(board_y, EMPTY)}
     @strategy = nil # by default
-    @ai_depth = 3
+    @ai_depth = 4
     puts "at chessboard, #{EMPTY} means empty, #{BLACK} means ai player, #{WHITE} means human player"
   end
 
   class << self
 
-    def have_winner?(chessboard, color, win_count)
+    def consecutive_count(chessboard, color, win_count, return_if_find = false)
+      total = 0
       board_x = chessboard.count
       board_y = chessboard[0].count
       for i in 0..(board_x - 1)
         for j in 0..(board_y - 1)
 
+          return total if return_if_find && total > 0 # quick return when detect game end
+
           #row
           if j + win_count - 1 < board_y && chessboard[i][j..(j + win_count - 1)].uniq == [color]
-            return true
+            total += 1
           end
 
           #column
           if i + win_count - 1 < board_x
             column_elements =  [*0..(win_count - 1)].map {|offset| chessboard[i + offset][j]}
-            return true if column_elements.uniq == [color]
+            total += 1 if column_elements.uniq == [color]
           end
 
           #right up diagonal
           if i - win_count + 1 < board_x && j + win_count - 1 < board_y
             right_up_elements = [*0..(win_count - 1)].map {|offset| chessboard[i - offset][j + offset]}
-            return true if right_up_elements.uniq == [color]
+            total += 1 if right_up_elements.uniq == [color]
           end
 
           #right down diagonal
           if i + win_count - 1 < board_x && j + win_count - 1 < board_y
             right_down_elements = [*0..(win_count - 1)].map {|offset| chessboard[i + offset][j + offset]}
-            return true if right_down_elements.uniq == [color]
+            total += 1 if right_down_elements.uniq == [color]
           end
         end
       end
 
-      return false
+      return total
     end
 
     def evaluate_score(chessboard, win_count)
@@ -63,15 +66,13 @@ class Game
 
     def evaluate_color_score(chessboard, color, win_count)
 
-      if Game.have_winner? chessboard, color, win_count
-        return 10000 - color
+      score = 0
+
+      for num in (1..win_count)
+        score += Game.consecutive_count(chessboard, color, num) * num * win_count
       end
 
-      if Game.have_winner? chessboard, color, win_count - 1
-        return 1000
-      end
-
-      return 0
+      return score
     end
 
   end
@@ -191,7 +192,7 @@ class Game
   end
 
   def have_winner?(color)
-    Game.have_winner? self.chessboard, color, self.win_count
+    Game.consecutive_count(self.chessboard, color, self.win_count, true) >= 1
   end
 
   def end?
