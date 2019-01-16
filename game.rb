@@ -16,11 +16,34 @@ class Game
     @chessboard = Array.new(board_x) {Array.new(board_y, EMPTY)}
     @strategy = nil # by default
     @ai_depth = ai_depth
-    @just_start = true
+    @just_start = false
     puts "at chessboard, #{EMPTY} means empty, #{BLACK} means ai player, #{WHITE} means human player"
   end
 
   class << self
+
+
+    def sorted_pos_list(board, color)
+      board_x = board.count
+      board_y = board[0].count
+      result = []
+      for i in 0..(board_x - 1 )
+        for j in 0..(board_y - 1 )
+
+          if board[i][j] == EMPTY
+            points = [element(board, i - 1, j - 1), element(board, i - 1, j), element(board, i - 1, j + 1),
+                      element(board, i, j - 1), element(board, i, j + 1),
+                      element(board, i + 1, j - 1), element(board, i + 1, j), element(board, i + 1, j + 1),
+            ]
+            same_count = points.flatten.select {|x| x == color}.count
+            result.push [[i, j], same_count]
+          end
+        end
+      end
+      result.sort! { |x,y| y[1] <=> x[1] }
+      result.map {|x| x[0]}
+
+    end
 
     def consecutive_count(chessboard, color, win_count, return_if_find = false)
       total = 0
@@ -32,26 +55,26 @@ class Game
           return total if return_if_find && total > 0 # quick return when detect game end
 
           #row
-          if j + win_count - 1 < board_y && chessboard[i][j..(j + win_count - 1)].uniq == [color]
+          if j + win_count - 1 < board_y && chessboard[i][j..(j + win_count - 1)] == [color] * win_count
             total += 1
           end
 
           #column
           if i + win_count - 1 < board_x
             column_elements =  [*0..(win_count - 1)].map {|offset| chessboard[i + offset][j]}
-            total += 1 if column_elements.uniq == [color]
+            total += 1 if column_elements == [color] * win_count
           end
 
           #right up diagonal
           if i - win_count + 1 < board_x && j + win_count - 1 < board_y
             right_up_elements = [*0..(win_count - 1)].map {|offset| chessboard[i - offset][j + offset]}
-            total += 1 if right_up_elements.uniq == [color]
+            total += 1 if right_up_elements == [color] * win_count
           end
 
           #right down diagonal
           if i + win_count - 1 < board_x && j + win_count - 1 < board_y
             right_down_elements = [*0..(win_count - 1)].map {|offset| chessboard[i + offset][j + offset]}
-            total += 1 if right_down_elements.uniq == [color]
+            total += 1 if right_down_elements == [color] * win_count
           end
 
         end
@@ -60,8 +83,79 @@ class Game
       return total
     end
 
+    def get_endpoint_score(both_ends, win_count)
+      if both_ends == [EMPTY, EMPTY]
+        10 ** win_count
+      elsif both_ends == [EMPTY]
+        (10 ** win_count) / 4
+      else
+        0
+      end
+    end
+
+    def element(board, x, y)
+      if x >= 0 && x < board.count && y >= 0 && y < board[0].count
+        return board[x][y]
+      end
+      return nil
+    end
+
+    def get_score(chessboard, color, win_count, total_size)
+      if win_count == total_size && Game.consecutive_count(chessboard, color, total_size, true) >= 1
+        return INF
+      end
+
+      total_score = 0
+      board_x = chessboard.count
+      board_y = chessboard[0].count
+      for i in 0..(board_x - 1)
+        for j in 0..(board_y - 1)
+
+          #row
+          if j + win_count - 1 < board_y && chessboard[i][j..(j + win_count - 1)] == [color] * win_count
+            #both_ends open
+            both_ends = [element(chessboard,i, j - 1), element(chessboard, i, j + win_count)].reject {|x| x.nil?}
+            total_score += Game.get_endpoint_score both_ends, win_count
+          end
+
+          #column
+          if i + win_count - 1 < board_x
+            column_elements =  [*0..(win_count - 1)].map {|offset| chessboard[i + offset][j]}
+            if column_elements == [color] * win_count
+              both_ends = [element(chessboard, i - 1, j), element(chessboard, i + win_count, j)].reject {|x| x.nil?}
+              total_score += Game.get_endpoint_score both_ends, win_count
+            end
+          end
+
+          #right up diagonal
+          if i - win_count + 1 < board_x && j + win_count - 1 < board_y
+            right_up_elements = [*0..(win_count - 1)].map {|offset| chessboard[i - offset][j + offset]}
+            if right_up_elements == [color] * win_count
+              both_ends = [element(chessboard, i + 1, j - 1), element(chessboard, i - win_count, j + win_count)].reject {|x| x.nil?}
+              total_score += Game.get_endpoint_score both_ends, win_count
+            end
+          end
+
+          #right down diagonal
+          if i + win_count - 1 < board_x && j + win_count - 1 < board_y
+            right_down_elements = [*0..(win_count - 1)].map {|offset| chessboard[i + offset][j + offset]}
+            if right_down_elements == [color] * win_count
+              both_ends = [element(chessboard, i - 1, j - 1), element(chessboard, i + win_count, j + win_count)].reject {|x| x.nil?}
+              total_score += Game.get_endpoint_score both_ends, win_count
+            end
+          end
+
+        end
+      end
+
+      return total_score
+    end
+
+
 
     def evaluate_score(chessboard, win_count)
+      #binding.pry
+
       score = self.evaluate_color_score(chessboard, BLACK, win_count) - self.evaluate_color_score(chessboard, WHITE, win_count)
       return score
     end
@@ -84,8 +178,15 @@ class Game
         return -score;
       else
 
+
         for num in (1..win_count)
-          score += Game.consecutive_count(chessboard, color, num) * (2 ** num) * (100 ** color)
+          #binding.pry
+          if color == BLACK
+            score += Game.get_score(chessboard, color, num, win_count) * (10 ** num)
+          else
+            #human
+            score += Game.get_score(chessboard, color, num, win_count) * (10 ** (num + 1))
+          end
         end
 
 
@@ -97,32 +198,11 @@ class Game
 
   end
 
-  def sorted_pos_list(color)
-    result = []
-    for i in 0..(board_x - 1 )
-      for j in 0..(board_y - 1 )
-
-        if self.chessboard[i][j] == EMPTY
-          points = [element(i - 1, j - 1), element(i - 1, j), element(i - 1, j + 1),
-                    element(i, j - 1), element(i, j + 1),
-                    element(i + 1, j - 1), element(i + 1, j), element(i + 1, j + 1),
-          ]
-          same_count = points.flatten.select {|x| x == color}.count
-          result.push [[i, j], same_count]
-        end
-      end
-    end
-    result.sort! { |x,y| y[1] <=> x[1] }
-    result.map {|x| x[0]}
-
-  end
-
   def element(x, y)
-
     if pos_legal?(x, y)
-      return [self.chessboard[x][y]]
+      return self.chessboard[x][y]
     end
-    return []
+    return nil
   end
 
   def choose_strategy(strategy)
@@ -161,11 +241,13 @@ class Game
 
   def minimax_walk
     if self.just_start
-      score, steps = self.minimax self.chessboard, 1, BLACK, -INF, INF, []
+      score, steps = self.minimax self.chessboard.dup, 1, BLACK, -INF, INF, []
       self.just_start = false
     else
-      score, steps = self.minimax self.chessboard, self.ai_depth, BLACK, -INF, INF, []
+      score, steps = self.minimax self.chessboard.dup, self.ai_depth, BLACK, -INF, INF, []
     end
+    puts "\n"
+    puts "final result score: #{score}, steps #{steps}"
 
     self.chessboard[steps[0][0]][steps[0][1]] = BLACK
   end
@@ -178,22 +260,23 @@ class Game
     if color == BLACK
       value = -INF
       final_steps = []
-      self.sorted_pos_list(BLACK).each do |pos|
+      #have bug
+      Game.sorted_pos_list(board, BLACK).each do |pos|
         i, j = pos
         if board[i][j] == EMPTY
             board[i][j] = BLACK
-            score, next_steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps)
+            score, current_steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps.dup.push([i, j]))
             if score > value
               value = score
-              final_steps = [[i, j]] + next_steps
+              final_steps = current_steps.dup
             end
-            puts "current i = #{i}, j = #{j}, board = #{board}, score=#{score}" if depth == self.ai_depth
+            puts "current i = #{i}, j = #{j}, board = #{board}, score=#{score} #{current_steps}" #if depth == self.ai_depth
             board[i][j] = EMPTY
             alpha = [alpha, score].max
             if alpha >= beta
               return value, final_steps
             end
-          end
+         end
       end
 
       return value, final_steps
@@ -203,15 +286,15 @@ class Game
       value = INF
       final_steps = []
 
-      self.sorted_pos_list(WHITE).each do |pos|
+      Game.sorted_pos_list(board, WHITE).each do |pos|
         i, j = pos
         if board[i][j] == EMPTY
           board[i][j] = WHITE
           #puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
-          score, next_steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps)
+          score, current_steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps.dup.push([i, j]) )
           if score < value
             value = score
-            final_steps = [[i, j]] + next_steps
+            final_steps = current_steps.dup
           end
           board[i][j] = EMPTY
           beta = [beta, score].min

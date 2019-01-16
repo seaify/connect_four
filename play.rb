@@ -1,7 +1,7 @@
 require './game'
 require 'highline'
 
-game = Game.new(6,7, 4, 3)
+game = Game.new(6 ,7, 4, 2)
 
 cli = HighLine.new
 strategy = cli.choose do |menu|
@@ -14,6 +14,21 @@ end
 puts strategy
 game.choose_strategy(strategy)
 
+=begin
+game.set_chessboard(
+[[0, 1, 0],
+[0, 2, 1],
+[2, 0, 0]])
+=end
+
+game.set_chessboard(
+      [[0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0],
+[0, 0, 2, 0, 0, 0, 0],
+[0, 2, 1, 1, 1, 2, 0],
+[0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0]]
+)
 
 while true
 
