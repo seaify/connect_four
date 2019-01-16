@@ -1,7 +1,7 @@
 require './game'
 require 'highline'
 
-game = Game.new(3,3, 3)
+game = Game.new(6,6, 3)
 
 cli = HighLine.new
 strategy = cli.choose do |menu|
@@ -15,9 +15,10 @@ puts strategy
 game.choose_strategy(strategy)
 
 
-while !game.end?
+while true
 
   game.ai_play
+  break if game.end?
   while true
     answer = cli.ask "your turn, input chess position(like  1 1): "
 
