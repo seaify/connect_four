@@ -7,15 +7,16 @@ class Game
   WHITE = 2
   INF = 100000000
 
-  attr_accessor :board_x, :board_y, :win_count, :chessboard, :strategy, :ai_depth
+  attr_accessor :board_x, :board_y, :win_count, :chessboard, :strategy, :ai_depth, :just_start
 
-  def initialize(board_x, board_y, win_count, api_depth)
+  def initialize(board_x, board_y, win_count, ai_depth)
     @board_x = board_x
     @board_y = board_y
     @win_count = win_count
     @chessboard = Array.new(board_x) {Array.new(board_y, EMPTY)}
     @strategy = nil # by default
-    @ai_depth = api_depth
+    @ai_depth = ai_depth
+    @just_start = true
     puts "at chessboard, #{EMPTY} means empty, #{BLACK} means ai player, #{WHITE} means human player"
   end
 
@@ -159,7 +160,13 @@ class Game
   end
 
   def minimax_walk
-    score, steps = self.minimax self.chessboard, self.ai_depth, BLACK, -INF, INF, []
+    if self.just_start
+      score, steps = self.minimax self.chessboard, 1, BLACK, -INF, INF, []
+      self.just_start = false
+    else
+      score, steps = self.minimax self.chessboard, self.ai_depth, BLACK, -INF, INF, []
+    end
+
     puts "score is #{score}, steps is #{steps}"
     self.chessboard[steps[0][0]][steps[0][1]] = BLACK
   end
@@ -182,7 +189,6 @@ class Game
               value = score
               final_steps = [[i, j]] + next_steps
             end
-            puts "in_max after child search, i = #{i}, j = #{j}, score is #{score}, value is #{value}" if depth == self.ai_depth
             board[i][j] = EMPTY
             alpha = [alpha, score].max
             if alpha >= beta
@@ -244,12 +250,10 @@ class Game
 
   def end?
     if self.have_winner? BLACK
-      print "ai win!"
       return true
     end
 
     if self.have_winner? WHITE
-      print "you win!"
       return true
     end
 
