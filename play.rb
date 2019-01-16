@@ -23,6 +23,7 @@ while true
     puts "ai win"
     break
   end
+
   while true
     answer = cli.ask "your turn, input chess position(like  1 1): "
 
@@ -38,12 +39,12 @@ while true
       puts "post not legal or filled"
     end
 
-    if game.end?
-      puts "you win"
-      break
-    end
   end
 
+  if game.end?
+    puts "you win"
+    break
+  end
 
 
 end

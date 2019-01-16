@@ -62,7 +62,6 @@ class Game
 
     def evaluate_score(chessboard, win_count)
       score = self.evaluate_color_score(chessboard, BLACK, win_count) - self.evaluate_color_score(chessboard, WHITE, win_count)
-      #puts "at eval, #{chessboard}, score is #{score}"
       return score
     end
 
@@ -81,7 +80,6 @@ class Game
         y = pos % board_y
         avg = (board_y + board_x) / 2
         score = (x + y - avg).abs + (x - y).abs
-        puts "score is #{score}"
         return -score;
       else
 
@@ -113,12 +111,13 @@ class Game
         end
       end
     end
-    result.sort { |x,y| y[1] <=> x[1] }
+    result.sort! { |x,y| y[1] <=> x[1] }
     result.map {|x| x[0]}
 
   end
 
   def element(x, y)
+
     if pos_legal?(x, y)
       return [self.chessboard[x][y]]
     end
@@ -167,7 +166,6 @@ class Game
       score, steps = self.minimax self.chessboard, self.ai_depth, BLACK, -INF, INF, []
     end
 
-    puts "score is #{score}, steps is #{steps}"
     self.chessboard[steps[0][0]][steps[0][1]] = BLACK
   end
 
@@ -214,7 +212,6 @@ class Game
             value = score
             final_steps = [[i, j]] + next_steps
           end
-          puts "in_min after child search, i = #{i}, j = #{j}, score is #{score}, value is #{value}" if depth == self.ai_depth
           board[i][j] = EMPTY
           beta = [beta, score].min
           if beta <= alpha
