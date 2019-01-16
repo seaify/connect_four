@@ -15,7 +15,7 @@ puts strategy
 game.choose_strategy(strategy)
 
 
-while true
+while !game.end?
 
   game.ai_play
   answer = cli.ask "your turn, input chess position(like  1 1): "

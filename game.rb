@@ -21,6 +21,10 @@ class Game
     self.strategy = strategy.to_s
   end
 
+  def set_chessboard(chessboard)
+    self.chessboard = chessboard
+  end
+
   def player_fill(x, y)
     self.chessboard[x][y] = WHITE
     self.print_board
@@ -58,6 +62,59 @@ class Game
     end
   end
 
+  def have_winner(color)
+
+    for i in 0..(board_x - 1)
+      for j in 0..(board_y - 1)
+
+        #row
+        if j + win_count - 1 < board_y && self.chessboard[i][j..(j + win_count - 1)].uniq == [color]
+          return true
+        end
+
+        #column
+        if i + win_count - 1 < board_x
+          column_elements =  [*0..(win_count - 1)].map {|offset| self.chessboard[i + offset][j]}
+          return true if column_elements.uniq == [color]
+        end
+
+        #right up diagonal
+        if i - win_count + 1 < board_x && j + win_count - 1 < board_y
+          right_up_elements = [*0..(win_count - 1)].map {|offset| self.chessboard[i - offset][j + offset]}
+          return true if right_up_elements.uniq == [color]
+        end
+
+        #right down diagonal
+        if i + win_count - 1 < board_x && j + win_count - 1 < board_y
+          right_down_elements = [*0..(win_count - 1)].map {|offset| self.chessboard[i + offset][j + offset]}
+          return true if right_down_elements.uniq == [color]
+        end
+      end
+    end
+
+    return false
+  end
+
+  def end?
+    if self.have_winner BLACK
+      print "ai win!"
+      return true
+    end
+
+    if self.have_winner WHITE
+      print "you win!"
+      return true
+    end
+
+    return false
+  end
+
 
 
 end
+
+=begin
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 0 0
+=end

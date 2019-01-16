@@ -10,9 +10,10 @@ RSpec.describe Game do
       expect(game.strategy).to eq('random_walk')
     end
 
-    it "print board" do
-      game = Game.new(3, 4, 3)
-      game.print_board
+    it "set chessboard" do
+      game = Game.new(3, 3, 3)
+      game.set_chessboard [[1, 2, 1], [0, 2, 0],[1, 2, 0]]
+      expect(game.end?).to eq(true)
     end
 
   end
