@@ -62,7 +62,7 @@ class Game
     def evaluate_color_score(chessboard, color, win_count)
 
       if Game.have_winner? chessboard, color, win_count
-        return 10000
+        return 10000 - color
       end
 
       if Game.have_winner? chessboard, color, win_count - 1
@@ -152,10 +152,13 @@ class Game
         for j in 0..(self.board_y - 1)
           if board[i][j] == EMPTY
             board[i][j] = BLACK
-            score, steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps + [[i, j]])
+            puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
+            score, next_steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps)
+            #binding.pry if i == 2 && j == 0 && score >= 5000
             if score > value
               value = score
-              final_steps = [[i, j]] + steps
+              binding.pry if steps.include? [i, j]
+              final_steps = [[i, j]] + next_steps
             end
             board[i][j] = EMPTY
             alpha = [alpha, score].max
@@ -176,10 +179,12 @@ class Game
         for j in 0..(self.board_y - 1)
           if board[i][j] == EMPTY
             board[i][j] = WHITE
-            score, steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps + [[i, j]])
+            puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
+            score, next_steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps)
             if score < value
               value = score
-              final_steps = [[i, j]] + steps
+              binding.pry if steps.include? [i, j]
+              final_steps = [[i, j]] + next_steps
             end
             board[i][j] = EMPTY
             beta = [beta, score].min
