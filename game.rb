@@ -5,7 +5,7 @@ class Game
   EMPTY = 0
   BLACK = 1
   WHITE = 2
-  INF = 10000
+  INF = 100000000
 
   attr_accessor :board_x, :board_y, :win_count, :chessboard, :strategy, :ai_depth
 
@@ -58,7 +58,11 @@ class Game
     def evaluate_score(chessboard, win_count)
 
       if Game.have_winner? chessboard, BLACK, win_count
-        return INF
+        return 10000
+      end
+
+      if Game.have_winner? chessboard, BLACK, win_count - 1
+        return 1000
       end
 
       return 0
@@ -125,15 +129,14 @@ class Game
 
       self.chessboard[x][y] = EMPTY
     end
-
 =end
     #self.chessboard[final_pos / board_y][final_pos % board_y] = BLACK
-    score, steps = self.minimax self.chessboard, self.ai_depth, BLACK, []
+    score, steps = self.minimax self.chessboard, self.ai_depth, BLACK, -INF, INF, []
     puts "score is #{score}, steps is #{steps}"
     self.chessboard[steps[0][0]][steps[0][1]] = BLACK
   end
 
-  def minimax(board, depth, color, steps)
+  def minimax(board, depth, color, alpha, beta, steps)
     if depth == 0
       return Game.evaluate_score(board, self.win_count), steps
     end
@@ -145,12 +148,16 @@ class Game
         for j in 0..(self.board_y - 1)
           if board[i][j] == EMPTY
             board[i][j] = BLACK
-            score, steps = self.minimax(board, depth - 1, WHITE, steps + [[i, j]])
+            score, steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps + [[i, j]])
             if score > value
               value = score
               final_steps = [[i, j]] + steps
             end
             board[i][j] = EMPTY
+            alpha = [alpha, score].max
+            if alpha >= beta
+              return value, final_steps
+            end
           end
         end
       end
@@ -165,12 +172,16 @@ class Game
         for j in 0..(self.board_y - 1)
           if board[i][j] == EMPTY
             board[i][j] = WHITE
-            score, steps = self.minimax(board, depth - 1, BLACK, steps + [[i, j]])
+            score, steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps + [[i, j]])
             if score < value
               value = score
               final_steps = [[i, j]] + steps
             end
             board[i][j] = EMPTY
+            beta = [beta, score].min
+            if beta <= alpha
+              return value, final_steps
+            end
           end
         end
       end

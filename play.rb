@@ -15,7 +15,7 @@ puts strategy
 game.choose_strategy(strategy)
 
 
-while true
+while !game.end?
 
   game.ai_play
   break if game.end?
