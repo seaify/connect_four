@@ -58,6 +58,7 @@ class Game
       return total
     end
 
+
     def evaluate_score(chessboard, win_count)
       score = self.evaluate_color_score(chessboard, BLACK, win_count) - self.evaluate_color_score(chessboard, WHITE, win_count)
       #puts "at eval, #{chessboard}, score is #{score}"
@@ -75,6 +76,33 @@ class Game
       return score
     end
 
+  end
+
+  def sorted_pos_list(color)
+    result = []
+    for i in 0..(board_x - 1 )
+      for j in 0..(board_y - 1 )
+
+        if self.chessboard[i][j] == EMPTY
+          points = [element(i - 1, j - 1), element(i - 1, j), element(i - 1, j + 1),
+                    element(i, j - 1), element(i, j + 1),
+                    element(i + 1, j - 1), element(i + 1, j), element(i + 1, j + 1),
+          ]
+          same_count = points.flatten.select {|x| x == color}.count
+          result.push [[i, j], same_count]
+        end
+      end
+    end
+    result.sort { |x,y| y[1] <=> x[1] }
+    result.map {|x| x[0]}
+
+  end
+
+  def element(x, y)
+    if pos_legal?(x, y)
+      return [self.chessboard[x][y]]
+    end
+    return []
   end
 
   def choose_strategy(strategy)
@@ -125,9 +153,9 @@ class Game
     if color == BLACK
       value = -INF
       final_steps = []
-      for i in 0..(self.board_x - 1)
-        for j in 0..(self.board_y - 1)
-          if board[i][j] == EMPTY
+      self.sorted_pos_list(BLACK).each do |pos|
+        i, j = pos
+        if board[i][j] == EMPTY
             board[i][j] = BLACK
             #puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
             score, next_steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps)
@@ -142,7 +170,6 @@ class Game
               return value, final_steps
             end
           end
-        end
       end
 
       return value, final_steps
@@ -151,25 +178,26 @@ class Game
     if color == WHITE
       value = INF
       final_steps = []
-      for i in 0..(self.board_x - 1)
-        for j in 0..(self.board_y - 1)
-          if board[i][j] == EMPTY
-            board[i][j] = WHITE
-            #puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
-            score, next_steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps)
-            if score < value
-              value = score
-              final_steps = [[i, j]] + next_steps
-            end
-            puts "in_min after child search, i = #{i}, j = #{j}, score is #{score}, value is #{value}" if depth == self.ai_depth
-            board[i][j] = EMPTY
-            beta = [beta, score].min
-            if beta <= alpha
-              return value, final_steps
-            end
+
+      self.sorted_pos_list(WHITE).each do |pos|
+        i, j = pos
+        if board[i][j] == EMPTY
+          board[i][j] = WHITE
+          #puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
+          score, next_steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps)
+          if score < value
+            value = score
+            final_steps = [[i, j]] + next_steps
+          end
+          puts "in_min after child search, i = #{i}, j = #{j}, score is #{score}, value is #{value}" if depth == self.ai_depth
+          board[i][j] = EMPTY
+          beta = [beta, score].min
+          if beta <= alpha
+            return value, final_steps
           end
         end
       end
+
       return value, final_steps
 
     end

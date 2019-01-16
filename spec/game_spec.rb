@@ -26,6 +26,16 @@ RSpec.describe Game do
 
     end
 
+    it "sort alternative nodes" do
+
+      game = Game.new(3, 3, 3)
+      game.set_chessboard [[1, 2, 1], [0, 2, 0],[1, 2, 0]]
+
+      game.sorted_pos_list(Game::BLACK)
+
+
+    end
+
   end
 
 end
