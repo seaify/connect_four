@@ -16,6 +16,16 @@ RSpec.describe Game do
       expect(game.end?).to eq(true)
     end
 
+    it "check score" do
+
+      score1 = Game.evaluate_score [[1, 1, 1], [0, 2, 0],[2, 2, 0]], 3
+      score2 = Game.evaluate_score [[1, 1, 0], [0, 2, 0],[2, 2, 1]], 3
+
+      puts score1
+      puts score2
+
+    end
+
   end
 
 end

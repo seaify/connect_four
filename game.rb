@@ -56,7 +56,9 @@ class Game
     end
 
     def evaluate_score(chessboard, win_count)
-      self.evaluate_color_score(chessboard, BLACK, win_count) - self.evaluate_color_score(chessboard, WHITE, win_count)
+      score = self.evaluate_color_score(chessboard, BLACK, win_count) - self.evaluate_color_score(chessboard, WHITE, win_count)
+      #puts "at eval, #{chessboard}, score is #{score}"
+      return score
     end
 
     def evaluate_color_score(chessboard, color, win_count)
@@ -141,7 +143,7 @@ class Game
   end
 
   def minimax(board, depth, color, alpha, beta, steps)
-    if depth == 0
+    if depth == 0 || self.end?
       return Game.evaluate_score(board, self.win_count), steps
     end
 
@@ -152,14 +154,13 @@ class Game
         for j in 0..(self.board_y - 1)
           if board[i][j] == EMPTY
             board[i][j] = BLACK
-            puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
+            #puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
             score, next_steps = self.minimax(board, depth - 1, WHITE, alpha, beta, steps)
-            #binding.pry if i == 2 && j == 0 && score >= 5000
             if score > value
               value = score
-              binding.pry if steps.include? [i, j]
               final_steps = [[i, j]] + next_steps
             end
+            puts "in_max after child search, i = #{i}, j = #{j}, score is #{score}, value is #{value}" if depth == self.ai_depth
             board[i][j] = EMPTY
             alpha = [alpha, score].max
             if alpha >= beta
@@ -179,13 +180,13 @@ class Game
         for j in 0..(self.board_y - 1)
           if board[i][j] == EMPTY
             board[i][j] = WHITE
-            puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
+            #puts "current i = #{i}, j = #{j}, board = #{board}, steps=#{steps}"
             score, next_steps = self.minimax(board, depth - 1, BLACK, alpha, beta, steps)
             if score < value
               value = score
-              binding.pry if steps.include? [i, j]
               final_steps = [[i, j]] + next_steps
             end
+            puts "in_min after child search, i = #{i}, j = #{j}, score is #{score}, value is #{value}" if depth == self.ai_depth
             board[i][j] = EMPTY
             beta = [beta, score].min
             if beta <= alpha
@@ -242,3 +243,4 @@ end
 0 0 0 0 0
 0 0 0 0 0
 =end
+
