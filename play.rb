@@ -18,11 +18,23 @@ game.choose_strategy(strategy)
 while !game.end?
 
   game.ai_play
-  answer = cli.ask "your turn, input chess position(like  1 1): "
+  while true
+    answer = cli.ask "your turn, input chess position(like  1 1): "
 
-  puts answer
-  x, y = answer.split(" ")
-  game.player_fill x.to_i - 1, y.to_i - 1
+    puts answer
+    x, y = answer.split(" ")
+    x = x.to_i - 1
+    y = y.to_i - 1
+
+    if game.pos_legal?(x, y) && game.pos_empty?(x, y)
+      game.player_fill x, y
+      break
+    else
+      puts "post not legal or filled"
+    end
+
+  end
+
 
 
 end

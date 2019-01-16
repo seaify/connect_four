@@ -62,6 +62,14 @@ class Game
     end
   end
 
+  def pos_legal?(x, y)
+    return x >= 0 && x < self.board_x && y >= 0 && y < self.board_y
+  end
+
+  def pos_empty?(x, y)
+    self.chessboard[x][y] == EMPTY
+  end
+
   def have_winner(color)
 
     for i in 0..(board_x - 1)
